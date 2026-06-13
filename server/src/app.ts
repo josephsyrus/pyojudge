@@ -1,4 +1,5 @@
 import express from "express";
+import connectDB from "./config/db";
 import "dotenv/config";
 
 const app = express();
@@ -8,6 +9,12 @@ app.get("/health", async (req, res) => {
   res.json({ status: "OK" });
 });
 
-app.listen(PORT, () => {
-  console.log(`server running on port ${PORT}`);
-});
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("failed to connect to mongodb: ", err);
+  });
