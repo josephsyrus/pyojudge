@@ -15,7 +15,7 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/problems", problemRoutes);
 
-app.get("/health", async (req, res) => {
+app.get("/health", (req, res) => {
   res.json({ status: "OK" });
 });
 

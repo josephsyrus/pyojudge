@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 export interface AccessTokenPayload {
   userId: string;
@@ -35,12 +36,31 @@ export function verifyRefreshToken(token: string): AccessTokenPayload {
   return jwt.verify(token, secret) as AccessTokenPayload;
 }
 
+export function hashToken(token: string): string {
+  return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+export function makeTokenEntry(token: string): { hash: string; expiresAt: Date } {
+  const decoded = jwt.decode(token) as { exp?: number } | null;
+  return {
+    hash: hashToken(token),
+    expiresAt: new Date((decoded?.exp ?? 0) * 1000),
+  };
+}
+
+export function pruneExpiredTokens(
+  tokens: { hash: string; expiresAt: Date }[],
+): { hash: string; expiresAt: Date }[] {
+  const now = new Date();
+  return tokens.filter((t) => t.expiresAt > now);
+}
+
 export function refreshTokenCookieOptions() {
   const isProd = process.env.NODE_ENV === "production";
   return {
     httpOnly: true,
     secure: isProd,
-    sameSite: "strict" as const,
+    sameSite: "lax" as const,
     maxAge: 7 * 24 * 60 * 60 * 1000, //in ms
     path: "/",
   };

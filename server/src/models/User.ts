@@ -1,4 +1,12 @@
-import { Schema, model, InferSchemaType } from "mongoose";
+import { Schema, model } from "mongoose";
+
+const RefreshTokenSchema = new Schema(
+  {
+    hash: { type: String, required: true },
+    expiresAt: { type: Date, required: true },
+  },
+  { _id: false },
+);
 
 const UserSchema = new Schema(
   {
@@ -32,7 +40,7 @@ const UserSchema = new Schema(
       sparse: true,
     },
     refreshTokens: {
-      type: [String], //multiple devices
+      type: [RefreshTokenSchema],
       default: [],
     },
     role: {
@@ -52,6 +60,16 @@ const UserSchema = new Schema(
   { timestamps: true },
 );
 
-type IUser = InferSchemaType<typeof UserSchema>;
+interface IUser {
+  username: string;
+  email: string;
+  password?: string;
+  githubId?: string;
+  googleId?: string;
+  refreshTokens: { hash: string; expiresAt: Date }[];
+  role: "user" | "admin";
+  starredProblems: string[];
+  friends: string[];
+}
 
 export default model<IUser>("User", UserSchema);
