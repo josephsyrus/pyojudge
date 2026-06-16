@@ -6,6 +6,7 @@ import {
   signAccessToken,
   signRefreshToken,
   refreshTokenCookieOptions,
+  verifyRefreshToken,
 } from "../services/tokenService";
 
 const router = Router();
@@ -143,6 +144,83 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
   } catch (err) {
     res.status(500).json({ message: "Login failed" });
   }
+});
+
+router.post("/refresh", async (req: Request, res: Response): Promise<void> => {
+  const token = req.cookies?.refreshToken; //optional chaining
+  if (!token) {
+    res.status(401).json({ message: "No refresh token" });
+    return;
+  }
+
+  try {
+    const payload = verifyRefreshToken(token); //returns object
+    const user = await User.findById(payload.userId);
+
+    if (!user) {
+      res.status(401).json({ message: "User not found" });
+      return;
+    }
+    //user found, but token not in db list - incase of refreshtoken reuse attack
+    if (!user.refreshTokens.includes(token)) {
+      user.refreshTokens = []; //wipe all refreshtokens
+      await user.save();
+
+      res.clearCookie("refreshToken");
+      res
+        .status(401)
+        .json({ message: "Token reuse detected, all sessions invalidated" });
+      return;
+    }
+
+    user.refreshTokens = user.refreshTokens.filter((t) => t !== token); //removing current refreshtoken
+
+    //making new refreshtoken
+    const newPayload = {
+      userId: user._id.toString(),
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    };
+
+    const newAccessToken = signAccessToken(newPayload);
+    const newRefreshToken = signRefreshToken(newPayload);
+
+    user.refreshTokens.push(newRefreshToken);
+    await user.save();
+
+    res.cookie("refreshToken", newRefreshToken, refreshTokenCookieOptions());
+    res.json({
+      accessToken: newAccessToken,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.clearCookie("refreshToken");
+    res.status(401).json({ message: "Invalid or expired refresh token" });
+  }
+});
+
+router.post("/logout", async (req: Request, res: Response): Promise<void> => {
+  const token = req.cookies?.refreshToken;
+  if (token) {
+    try {
+      const payload = verifyRefreshToken(token);
+      const user = await User.findById(payload.userId);
+      if (user) {
+        user.refreshTokens = user.refreshTokens.filter((t) => t !== token);
+        await user.save();
+      }
+    } catch {
+      //end session
+    }
+  }
+  res.clearCookie("refreshToken");
+  res.json({ message: "Logged out" });
 });
 
 export default router;
