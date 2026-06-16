@@ -7,7 +7,7 @@ export interface AccessTokenPayload {
   role: "user" | "admin";
 }
 
-export function signAccesToken(payload: AccessTokenPayload): string {
+export function signAccessToken(payload: AccessTokenPayload): string {
   const secret = process.env.JWT_ACCESS_SECRET;
   if (!secret) throw new Error("JWT_ACCESS_SECRET is not set");
   return jwt.sign(payload, secret, {
