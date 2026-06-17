@@ -1,6 +1,18 @@
 import { InferSchemaType, Schema, model } from "mongoose";
 
-const TestResultSchema = new Schema(
+export type Verdict = "Accepted" | "Wrong Answer" | "Time Limit Exceeded" | "Runtime Error";
+
+export interface ITestResult {
+  passed: boolean;
+  input: string;
+  expectedOutput: string;
+  actualOutput: string;
+  executionTime: number;
+  errorMessage?: string;
+  isHidden?: boolean;
+}
+
+const TestResultSchema = new Schema<ITestResult>(
   {
     passed: {
       type: Boolean,
