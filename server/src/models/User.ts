@@ -70,6 +70,8 @@ interface IUser {
   role: "user" | "admin";
   starredProblems: string[];
   friends: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export default model<IUser>("User", UserSchema);
