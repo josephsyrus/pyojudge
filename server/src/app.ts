@@ -7,6 +7,7 @@ import problemRoutes from "./routes/problems";
 import authRoutes from "./routes/auth";
 import submissionRoutes from "./routes/submissions";
 import userRoutes from "./routes/users";
+import leaderboardRoutes from "./routes/leaderboard";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/problems", problemRoutes);
 app.use("/api/submissions", submissionRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
 
 app.get("/health", (req, res) => {
   res.json({ status: "OK" });
