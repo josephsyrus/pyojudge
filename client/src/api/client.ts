@@ -44,7 +44,7 @@ apiClient.interceptors.response.use(
         return apiClient(original);
       } catch {
         setAccessToken(null);
-        window.dispatchEvent(new CustomEvent("auth:logout")); //clear auth state
+        window.dispatchEvent(new CustomEvent("auth:logout")); //clear auth state, listening in AuthContext.tsx
       }
     }
     return Promise.reject(error);
