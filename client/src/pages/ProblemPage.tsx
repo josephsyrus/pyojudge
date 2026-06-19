@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Star, Pause, Play, Clock, X, Sun, Code, Loader } from "lucide-react";
+import { Star, Pause, Play, Clock, X, Sun, Code, Loader, Check } from "lucide-react";
 import apiClient from "../api/client";
 import type { Problem, TestResult, Verdict } from "../types";
 import { SplitPanel } from "../components/problem/SplitPanel";
@@ -425,7 +425,7 @@ export function ProblemPage() {
                           }`}
                         >
                           {t.label}
-                          {editorTheme === t.id && <span className="ml-1">✓</span>}
+                          {editorTheme === t.id && <Check size={13} className="ml-1 inline" />}
                         </button>
                       ))}
                     </div>
