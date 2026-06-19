@@ -10,22 +10,10 @@ const router = Router();
 
 //on clicking submit
 router.post("/", requireAuth, async (req: AuthRequest, res: Response): Promise<void> => {
-  const { problemSlug, code, verdict, testResults, totalTests, passedTests, maxExecutionTime } =
-    req.body;
+  const { problemSlug, code, testResults, timedOut } = req.body;
 
-  if (!problemSlug || !code || !verdict || !testResults) {
+  if (!problemSlug || !code || !Array.isArray(testResults)) {
     res.status(400).json({ message: "Missing required submission fields" });
-    return;
-  }
-
-  const validVerdicts: Verdict[] = [
-    "Accepted",
-    "Wrong Answer",
-    "Time Limit Exceeded",
-    "Runtime Error",
-  ];
-  if (!validVerdicts.includes(verdict)) {
-    res.status(400).json({ message: "Invalid verdict" });
     return;
   }
 
@@ -36,54 +24,62 @@ router.post("/", requireAuth, async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    //trust TLE from client
-    const isTLE = verdict === "Time Limit Exceeded";
+    const clientByInput = new Map<
+      string,
+      { actualOutput: string; executionTime: number; errorMessage?: string }
+    >();
+    for (const tr of testResults) {
+      if (tr && typeof tr.input === "string") {
+        clientByInput.set(tr.input, {
+          actualOutput: typeof tr.actualOutput === "string" ? tr.actualOutput : "",
+          executionTime: typeof tr.executionTime === "number" ? tr.executionTime : 0,
+          errorMessage: typeof tr.errorMessage === "string" ? tr.errorMessage : undefined,
+        });
+      }
+    }
 
-    //verify all results from client
-    const verifiedResults: ITestResult[] = (testResults as ITestResult[]).map((tr) => {
-      if (isTLE || !tr.isHidden) return tr; //return tr if tle or the testcase was visible
+    const isTLE = timedOut === true;
 
-      //check if testresult exists in db testcases
-      const dbTc = problem.testCases.find((tc) => tc.input === tr.input && tc.isHidden);
-      if (!dbTc) return tr;
-
-      //else return modified tr
+    const verifiedResults: ITestResult[] = problem.testCases.map((tc) => {
+      const client = clientByInput.get(tc.input);
+      const actualOutput = client?.actualOutput ?? "";
+      const passed =
+        !isTLE && client !== undefined && outputsMatch(tc.expectedOutput, actualOutput);
       return {
-        ...tr,
-        passed: outputsMatch(dbTc.expectedOutput, tr.actualOutput ?? ""), //true or false
-        expectedOutput: "", // do not store expected output, it is sent back to client
+        passed,
+        input: tc.input,
+        expectedOutput: tc.isHidden ? "" : tc.expectedOutput,
+        actualOutput,
+        executionTime: client?.executionTime ?? 0,
+        errorMessage: client?.errorMessage,
+        isHidden: tc.isHidden,
       };
     });
 
-    const finalTotalTests = verifiedResults.length;
-    const finalPassedTests = verifiedResults.filter((r) => r.passed === true).length;
+    const totalTests = verifiedResults.length;
+    const passedTests = verifiedResults.filter((r) => r.passed).length;
     const hasRuntimeError = verifiedResults.some((r) => r.errorMessage && !r.passed);
 
-    const finalVerdict: Verdict = isTLE
+    const verdict: Verdict = isTLE
       ? "Time Limit Exceeded"
-      : finalPassedTests === finalTotalTests
+      : totalTests > 0 && passedTests === totalTests
         ? "Accepted"
         : hasRuntimeError
           ? "Runtime Error"
           : "Wrong Answer";
 
-    //validating client data for max exec time calc
-    const finalMaxExecTime =
-      typeof maxExecutionTime === "number"
-        ? maxExecutionTime
-        : Math.max(0, ...verifiedResults.map((r) => r.executionTime ?? 0));
+    const maxExecutionTime = Math.max(0, ...verifiedResults.map((r) => r.executionTime));
 
-    //store
     const submission = await Submission.create({
       userId: new mongoose.Types.ObjectId(req.user!.userId),
       problemId: problem._id,
       code,
       language: "python",
-      verdict: finalVerdict,
+      verdict,
       testResults: verifiedResults,
-      totalTests: finalTotalTests,
-      passedTests: finalPassedTests,
-      maxExecutionTime: finalMaxExecTime,
+      totalTests,
+      passedTests,
+      maxExecutionTime,
     });
 
     res.status(201).json(submission);

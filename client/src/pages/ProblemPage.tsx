@@ -171,12 +171,6 @@ export function ProblemPage() {
     setVerdict(null);
     const { results: res, timedOut } = await run(code, problem.testCases);
     const clientVerdict = deriveVerdict(res, timedOut);
-    // Tag each result with isHidden so the server can verify hidden tests
-    const taggedResults = res.map((r, i) => ({
-      ...r,
-      isHidden: problem.testCases[i]?.isHidden ?? false,
-    }));
-    const maxTime = res.reduce((m, r) => Math.max(m, r.executionTime), 0);
     setIsSubmission(true);
     try {
       const { data: saved } = await apiClient.post<{
@@ -187,11 +181,13 @@ export function ProblemPage() {
       }>("/submissions", {
         problemSlug: problem.slug,
         code,
-        verdict: clientVerdict,
-        testResults: taggedResults,
-        totalTests: res.length,
-        passedTests: res.filter((r) => r.passed).length,
-        maxExecutionTime: maxTime,
+        timedOut,
+        testResults: res.map((r) => ({
+          input: r.input,
+          actualOutput: r.actualOutput,
+          executionTime: r.executionTime,
+          errorMessage: r.errorMessage,
+        })),
       });
       // Use server-authoritative verdict and counts
       setVerdict(saved.verdict);
