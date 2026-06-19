@@ -41,7 +41,7 @@ export function Navbar() {
           </Link>
           {streak !== null && (
             <span className="flex items-center gap-0.5 text-sm font-bold text-rose-500 dark:text-rose-300 tabular-nums">
-              <Flame size={28} className="text-rose-500 dark:text-rose-400 shrink-0" />
+              <Flame size={18} className="text-rose-500 dark:text-rose-400 shrink-0" />
               {streak}
             </span>
           )}
