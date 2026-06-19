@@ -12,7 +12,8 @@ router.get("/", async (req: Request, res: Response): Promise<void> => {
     const filter: Record<string, unknown> = {};
 
     if (search) filter.title = { $regex: search, $options: "i" }; //match substring, case insensitive
-    if (difficulty) filter.difficulty = difficulty;
+    if (difficulty)
+      filter.difficulty = { $in: (difficulty as string).split(",").filter(Boolean) };
     if (tags)
       filter.tags = { $in: (tags as string).split(",").filter(Boolean) };
     if (slugs)
