@@ -60,7 +60,7 @@ export interface Problem {
 export interface TestResult {
   passed: boolean;
   input: string;
-  expectedOutput: string;
+  expectedOutput?: string; // absent for hidden test cases
   actualOutput: string;
   executionTime: number;
   errorMessage?: string;
@@ -110,3 +110,24 @@ export interface UserStats {
   recentlySolved: RecentlySolvedProblem[];
   activityByDate: Record<string, number>;
 }
+
+//worker messages
+export interface WorkerRunMessage {
+  type: "RUN";
+  code: string;
+  testCases: TestCase[];
+}
+
+export interface WorkerResultMessage {
+  type: "RESULT";
+  results: TestResult[];
+}
+
+export interface WorkerStatusMessage {
+  type: "STATUS";
+  status: "ready" | "error";
+  error?: string;
+}
+
+export type WorkerInMessage = WorkerRunMessage;
+export type WorkerOutMessage = WorkerResultMessage | WorkerStatusMessage;
