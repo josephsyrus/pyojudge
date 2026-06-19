@@ -14,6 +14,7 @@ import leaderboardRoutes from "./routes/leaderboard";
 import adminRoutes from "./routes/admin";
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
 
 app.use(
@@ -26,6 +27,15 @@ app.use(
 app.use(express.json({ limit: "1mb" })); //payloads limited to 1mb
 app.use(cookieParser());
 app.use(securityHeaders);
+
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later." },
+});
+app.use("/api", globalLimiter);
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20 });
 app.use(["/api/auth/login", "/api/auth/register"], authLimiter);
