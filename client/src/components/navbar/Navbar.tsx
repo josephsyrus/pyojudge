@@ -13,8 +13,22 @@ export function Navbar() {
     <nav className="h-14 bg-white dark:bg-zinc-800 border-b border-slate-200 dark:border-zinc-700 flex items-center px-5 gap-4 shrink-0">
       <Link
         to="/problems"
-        className="text-rose-500 dark:text-rose-400 font-extrabold text-2xl tracking-tight hover:text-rose-600 dark:hover:text-rose-300 transition-colors"
+        className="flex items-center gap-2 text-rose-500 dark:text-rose-400 font-extrabold text-2xl tracking-tight hover:text-rose-600 dark:hover:text-rose-300 transition-colors"
       >
+        <span
+          aria-hidden
+          className="h-7 w-6 shrink-0 bg-current"
+          style={{
+            maskImage: "url(/favicon.svg)",
+            WebkitMaskImage: "url(/favicon.svg)",
+            maskRepeat: "no-repeat",
+            WebkitMaskRepeat: "no-repeat",
+            maskPosition: "center",
+            WebkitMaskPosition: "center",
+            maskSize: "contain",
+            WebkitMaskSize: "contain",
+          }}
+        />
         pyojudge
       </Link>
 
