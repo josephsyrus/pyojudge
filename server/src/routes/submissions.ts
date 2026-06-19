@@ -87,7 +87,8 @@ router.post("/", requireAuth, async (req: AuthRequest, res: Response): Promise<v
     });
 
     res.status(201).json(submission);
-  } catch {
+  } catch (err) {
+    console.error("Failed to save submission:", err);
     res.status(500).json({ message: "Failed to save submission" });
   }
 });

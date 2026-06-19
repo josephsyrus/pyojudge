@@ -24,11 +24,11 @@ const TestResultSchema = new Schema<ITestResult>(
     },
     expectedOutput: {
       type: String,
-      required: true,
+      default: "",
     },
     actualOutput: {
       type: String,
-      required: true,
+      default: "",
     },
     executionTime: {
       type: Number,
