@@ -20,7 +20,7 @@ import { useAuth } from "./contexts/AuthContext";
 function AppShell() {
   const { user } = useAuth();
   return (
-    <div className="h-screen flex flex-col bg-slate-50 dark:bg-zinc-900 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+    <div className="h-[100dvh] flex flex-col bg-slate-50 dark:bg-zinc-900 text-slate-900 dark:text-slate-100 transition-colors duration-200">
       <Navbar />
       <div className="flex-1 min-h-0 overflow-auto">
         <Routes>
