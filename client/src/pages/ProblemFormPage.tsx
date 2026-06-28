@@ -192,7 +192,7 @@ export function ProblemFormPage() {
     );
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate("/admin")}
@@ -216,7 +216,7 @@ export function ProblemFormPage() {
         <div className="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl p-5 space-y-4">
           <h2 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Basic info</h2>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Title">
               <input
                 required
@@ -325,7 +325,7 @@ export function ProblemFormPage() {
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Field label="Input">
                   <textarea
                     rows={2}
@@ -413,7 +413,7 @@ export function ProblemFormPage() {
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Field label="Input">
                   <textarea
                     rows={2}
@@ -438,8 +438,8 @@ export function ProblemFormPage() {
         {/* Starter code */}
         <div className="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl p-5 space-y-4">
           <h2 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Starter code</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-2">
               <Field label="Starter code">
                 <textarea
                   required

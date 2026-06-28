@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Star, Search, X } from "lucide-react";
+import { Star, Search, X, SlidersHorizontal, ChevronDown } from "lucide-react";
 import apiClient from "../api/client";
 import type { ProblemSummary, Difficulty } from "../types";
 import { DifficultyBadge } from "../components/common/DifficultyBadge";
@@ -81,6 +81,9 @@ export function ProblemListPage() {
   const [showStarredOnly, setShowStarredOnly] = useState(false);
   const [starredSlugs, setStarredSlugs] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
+  // Mobile-only: collapse the filter panel so it can sit at the top without
+  // pushing the list far down, and stay put while applying multiple filters.
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -191,14 +194,16 @@ export function ProblemListPage() {
 
   const hasActiveFilters =
     selectedTags.size > 0 || selectedDifficulties.size > 0 || search !== "" || showStarredOnly;
+  const activeFilterCount =
+    selectedTags.size + selectedDifficulties.size + (showStarredOnly ? 1 : 0);
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 mb-6 tracking-tight">
         Problems
       </h1>
 
-      <div className="flex gap-6 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left: problem list */}
         <div className="flex-1 min-w-0">
           <div className="relative mb-4">
@@ -316,23 +321,54 @@ export function ProblemListPage() {
           )}
         </div>
 
-        {/* Right: filter panel */}
-        <div className="w-72 shrink-0 space-y-3 sticky top-4">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+        {/* Filter panel — right column on desktop, collapsible top section on mobile */}
+        <div className="w-full lg:w-72 lg:shrink-0 space-y-3 lg:sticky lg:top-4 order-first lg:order-none">
+          {/* Mobile-only toggle: keeps filters anchored at the top while applying them */}
+          <button
+            onClick={() => setFiltersOpen((o) => !o)}
+            className="lg:hidden flex items-center justify-between w-full rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-zinc-200 shadow-sm"
+          >
+            <span className="flex items-center gap-2">
+              <SlidersHorizontal size={15} />
               Filters
+              {activeFilterCount > 0 && (
+                <span className="rounded-full bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 leading-none">
+                  {activeFilterCount}
+                </span>
+              )}
             </span>
-            <button
-              onClick={clearFilters}
-              className={`text-xs text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 font-medium transition-opacity ${
-                hasActiveFilters
-                  ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 pointer-events-none"
-              }`}
-            >
-              Clear all
-            </button>
-          </div>
+            <ChevronDown
+              size={16}
+              className={`transition-transform ${filtersOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {/* Filter controls: collapsible on mobile, always shown on desktop */}
+          <div className={`space-y-3 ${filtersOpen ? "" : "hidden"} lg:block`}>
+            <div className="hidden lg:flex items-center justify-between">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
+                Filters
+              </span>
+              <button
+                onClick={clearFilters}
+                className={`text-xs text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 font-medium transition-opacity ${
+                  hasActiveFilters
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none"
+                }`}
+              >
+                Clear all
+              </button>
+            </div>
+            {/* Mobile-only clear-all (the desktop header above is hidden on mobile) */}
+            {hasActiveFilters && (
+              <button
+                onClick={clearFilters}
+                className="lg:hidden text-xs text-rose-500 dark:text-rose-400 hover:text-rose-600 dark:hover:text-rose-300 font-medium"
+              >
+                Clear all filters
+              </button>
+            )}
 
           {user && (
             <div className="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl p-4 shadow-sm">
@@ -394,6 +430,7 @@ export function ProblemListPage() {
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </div>

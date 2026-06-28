@@ -22,6 +22,11 @@ function Skeleton() {
   );
 }
 
+// Shared grid template so the header and each row line up exactly.
+// Tighter columns/gap on mobile so the user column keeps room; roomier on sm+.
+const ROW_GRID =
+  "grid grid-cols-[1.5rem_minmax(0,1fr)_2.25rem_2.25rem_2.25rem_2.25rem] sm:grid-cols-[1.5rem_minmax(0,1fr)_3.5rem_3.5rem_3.5rem_3.5rem] gap-2 sm:gap-4";
+
 function RankBadge({ rank }: { rank: number }) {
   if (rank === 1) return <span className="text-amber-400 font-extrabold text-base">🥇</span>;
   if (rank === 2) return <span className="font-extrabold text-base">🥈</span>;
@@ -48,7 +53,7 @@ export function LeaderboardPage() {
   }, []);
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
           Leaderboard
@@ -70,13 +75,13 @@ export function LeaderboardPage() {
       {!loading && !error && entries.length > 0 && (
         <>
           {/* Header */}
-          <div className="flex items-center gap-4 px-5 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500">
-            <span className="w-6">#</span>
-            <span className="flex-1">User</span>
-            <span className="w-12 text-center text-teal-500">Easy</span>
-            <span className="w-14 text-center text-amber-500">Med</span>
-            <span className="w-12 text-center text-rose-500">Hard</span>
-            <span className="w-14 text-right">Total</span>
+          <div className={`${ROW_GRID} items-center px-3 sm:px-5 pb-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-zinc-500`}>
+            <span className="text-right">#</span>
+            <span>User</span>
+            <span className="text-center text-teal-500">Easy</span>
+            <span className="text-center text-amber-500">Med</span>
+            <span className="text-center text-rose-500">Hard</span>
+            <span className="text-center">Total</span>
           </div>
 
           <div className="divide-y divide-slate-200 dark:divide-zinc-700 border border-slate-200 dark:border-zinc-700 rounded-2xl overflow-hidden bg-white dark:bg-zinc-800">
@@ -86,15 +91,15 @@ export function LeaderboardPage() {
                 <Link
                   key={entry.username}
                   to={`/u/${entry.username}`}
-                  className={`flex items-center gap-4 px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-zinc-700/50 transition-colors ${
+                  className={`${ROW_GRID} items-center px-3 sm:px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-zinc-700/50 transition-colors ${
                     isMe ? "bg-rose-50 dark:bg-rose-950/30" : ""
                   }`}
                 >
-                  <div className="w-6 flex justify-end">
+                  <div className="flex justify-end">
                     <RankBadge rank={i + 1} />
                   </div>
 
-                  <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-7 h-7 rounded-full bg-rose-100 dark:bg-rose-900/60 border border-rose-300 dark:border-rose-700 flex items-center justify-center text-xs font-extrabold text-rose-600 dark:text-rose-300 select-none shrink-0">
                       {entry.username.slice(0, 2).toUpperCase()}
                     </div>
@@ -108,16 +113,16 @@ export function LeaderboardPage() {
                     </span>
                   </div>
 
-                  <span className="w-12 text-center text-sm font-mono text-teal-500 dark:text-teal-400">
+                  <span className="text-center text-sm font-mono text-teal-500 dark:text-teal-400">
                     {entry.easy}
                   </span>
-                  <span className="w-14 text-center text-sm font-mono text-amber-500 dark:text-amber-400">
+                  <span className="text-center text-sm font-mono text-amber-500 dark:text-amber-400">
                     {entry.medium}
                   </span>
-                  <span className="w-12 text-center text-sm font-mono text-rose-500 dark:text-rose-400">
+                  <span className="text-center text-sm font-mono text-rose-500 dark:text-rose-400">
                     {entry.hard}
                   </span>
-                  <span className="w-14 text-right text-sm font-extrabold text-slate-900 dark:text-slate-100 tabular-nums">
+                  <span className="text-center text-sm font-extrabold text-slate-900 dark:text-slate-100 tabular-nums">
                     {entry.totalSolved}
                   </span>
                 </Link>

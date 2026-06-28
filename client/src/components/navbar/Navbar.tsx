@@ -10,10 +10,10 @@ export function Navbar() {
   const streak = useStreak();
 
   return (
-    <nav className="h-14 bg-white dark:bg-zinc-800 border-b border-slate-200 dark:border-zinc-700 flex items-center px-5 gap-4 shrink-0">
+    <nav className="h-14 bg-white dark:bg-zinc-800 border-b border-slate-200 dark:border-zinc-700 flex items-center px-3 sm:px-5 gap-2 sm:gap-4 shrink-0">
       <Link
         to="/problems"
-        className="flex items-center gap-2 text-rose-500 dark:text-rose-400 font-extrabold text-2xl tracking-tight hover:text-rose-600 dark:hover:text-rose-300 transition-colors"
+        className="flex items-center gap-2 shrink-0 text-rose-500 dark:text-rose-400 font-extrabold text-xl sm:text-2xl tracking-tight hover:text-rose-600 dark:hover:text-rose-300 transition-colors"
       >
         <span
           aria-hidden
@@ -29,7 +29,7 @@ export function Navbar() {
             WebkitMaskSize: "contain",
           }}
         />
-        pyojudge
+        <span className="hidden sm:inline">pyojudge</span>
       </Link>
 
       <div className="flex-1" />

@@ -95,7 +95,7 @@ export function NavUserSearch() {
 
   return (
     <div ref={wrapperRef} className="relative">
-      <div className="flex items-center bg-slate-100 dark:bg-zinc-700/60 border border-slate-300 dark:border-zinc-600 rounded-xl px-3 py-1.5 gap-2 w-48 focus-within:border-rose-500 transition-colors">
+      <div className="flex items-center bg-slate-100 dark:bg-zinc-700/60 border border-slate-300 dark:border-zinc-600 rounded-xl px-3 py-1.5 gap-2 w-28 sm:w-48 focus-within:border-rose-500 transition-colors">
         {loading ? (
           <Loader2 className="animate-spin w-3.5 h-3.5 text-slate-400 dark:text-zinc-500 shrink-0" />
         ) : (

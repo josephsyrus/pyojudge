@@ -20,7 +20,9 @@ function computeStreak(activityByDate: Record<string, number>): number {
 }
 
 function relativeTime(dateStr: string): string {
-  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+  const days = Math.floor(
+    (Date.now() - new Date(dateStr).getTime()) / 86400000,
+  );
   if (days === 0) return "today";
   if (days === 1) return "1d ago";
   if (days < 7) return `${days}d ago`;
@@ -37,7 +39,11 @@ function cellColor(count: number): string {
   return "bg-rose-500";
 }
 
-function ActivityHeatmap({ activityByDate }: { activityByDate: Record<string, number> }) {
+function ActivityHeatmap({
+  activityByDate,
+}: {
+  activityByDate: Record<string, number>;
+}) {
   const today = new Date();
   const months: { label: string; weeks: (string | null)[][] }[] = [];
   for (let offset = 11; offset >= 0; offset--) {
@@ -54,11 +60,14 @@ function ActivityHeatmap({ activityByDate }: { activityByDate: Record<string, nu
     while (cells.length % 7 !== 0) cells.push(null);
     const weeks: (string | null)[][] = [];
     for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
-    months.push({ label: ref.toLocaleString("default", { month: "short" }), weeks });
+    months.push({
+      label: ref.toLocaleString("default", { month: "short" }),
+      weeks,
+    });
   }
 
   return (
-    <div className="grid grid-cols-6 gap-x-2 gap-y-4">
+    <div className="grid grid-cols-4 sm:grid-cols-6 gap-x-2 gap-y-4">
       {months.map((m, mi) => (
         <div key={mi}>
           <div className="text-xs text-slate-500 dark:text-zinc-400 font-semibold leading-none mb-1">
@@ -72,10 +81,10 @@ function ActivityHeatmap({ activityByDate }: { activityByDate: Record<string, nu
                     <div
                       key={di}
                       title={`${day}: ${activityByDate[day] ?? 0} submission(s)`}
-                      className={`w-3 h-3 rounded-sm cursor-default transition-opacity hover:opacity-70 ${cellColor(activityByDate[day] ?? 0)}`}
+                      className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm cursor-default transition-opacity hover:opacity-70 ${cellColor(activityByDate[day] ?? 0)}`}
                     />
                   ) : (
-                    <div key={di} className="w-3 h-3" />
+                    <div key={di} className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   ),
                 )}
               </div>
@@ -128,7 +137,10 @@ function DiffBar({
         </span>
       </div>
       <div className="h-2.5 bg-slate-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${width}%` }} />
+        <div
+          className={`h-full rounded-full ${barColor}`}
+          style={{ width: `${width}%` }}
+        />
       </div>
     </div>
   );
@@ -139,7 +151,9 @@ function ProgressRing({ pct }: { pct: number }) {
   return (
     <div
       className="relative w-20 h-20 rounded-full [--arc:theme(colors.rose.400)] [--track:theme(colors.slate.200)] dark:[--arc:theme(colors.rose.500)] dark:[--track:theme(colors.zinc.700)]"
-      style={{ backgroundImage: `conic-gradient(var(--arc) ${value * 3.6}deg, var(--track) 0)` }}
+      style={{
+        backgroundImage: `conic-gradient(var(--arc) ${value * 3.6}deg, var(--track) 0)`,
+      }}
     >
       <div className="absolute inset-[6px] rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center">
         <span className="text-sm font-extrabold text-slate-900 dark:text-slate-100">
@@ -173,7 +187,9 @@ export function PublicProfilePage() {
     if (!authUser || !username || isOwnProfile) return;
     apiClient
       .get<{ username: string; joinedAt: string }[]>("/users/me/friends")
-      .then(({ data }) => setIsFriend(data.some((f) => f.username === username)))
+      .then(({ data }) =>
+        setIsFriend(data.some((f) => f.username === username)),
+      )
       .catch(() => {});
   }, [authUser, username, isOwnProfile]);
 
@@ -181,7 +197,9 @@ export function PublicProfilePage() {
     if (!authUser || !username) return;
     setFriendLoading(true);
     try {
-      const { data } = await apiClient.post<{ isFriend: boolean }>(`/users/friends/${username}`);
+      const { data } = await apiClient.post<{ isFriend: boolean }>(
+        `/users/friends/${username}`,
+      );
       setIsFriend(data.isFriend);
     } catch {}
     setFriendLoading(false);
@@ -205,8 +223,13 @@ export function PublicProfilePage() {
   if (error || !profile) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <p className="text-slate-500 dark:text-zinc-400 text-sm">{error ?? "User not found"}</p>
-        <Link to="/problems" className="text-rose-500 dark:text-rose-400 text-sm hover:underline">
+        <p className="text-slate-500 dark:text-zinc-400 text-sm">
+          {error ?? "User not found"}
+        </p>
+        <Link
+          to="/problems"
+          className="text-rose-500 dark:text-rose-400 text-sm hover:underline"
+        >
           Back to problems →
         </Link>
       </div>
@@ -218,7 +241,9 @@ export function PublicProfilePage() {
     (profile.totalByDifficulty.Medium ?? 0) +
     (profile.totalByDifficulty.Hard ?? 0);
   const totalSolvedPct =
-    totalProblems > 0 ? Math.round((profile.totalSolved / totalProblems) * 100) : 0;
+    totalProblems > 0
+      ? Math.round((profile.totalSolved / totalProblems) * 100)
+      : 0;
   const streak = computeStreak(profile.activityByDate);
   const initials = profile.username.slice(0, 2).toUpperCase();
   const joinedYear = new Date(profile.joinedAt).getFullYear();
@@ -231,21 +256,25 @@ export function PublicProfilePage() {
             {initials}
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-extrabold tracking-tight">@{profile.username}</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight">
+              @{profile.username}
+            </h1>
             {isOwnProfile && authUser?.email ? (
-              <p className="text-rose-600 dark:text-rose-300 text-sm mt-0.5">{authUser.email}</p>
+              <p className="text-rose-600 dark:text-rose-300 text-sm mt-0.5">
+                {authUser.email}
+              </p>
             ) : (
               <p className="text-rose-600 dark:text-rose-300 text-sm mt-0.5">
                 Member since {joinedYear}
               </p>
             )}
           </div>
-          <div className="flex flex-wrap gap-3 items-start">
+          <div className="flex flex-col gap-3 w-full sm:w-auto">
             {authUser && !isOwnProfile && (
               <button
                 onClick={toggleFriend}
                 disabled={friendLoading}
-                className={`group flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all disabled:opacity-50 ${
+                className={`group flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all disabled:opacity-50 w-full sm:w-auto ${
                   isFriend
                     ? "bg-pink-200 dark:bg-pink-900/50 text-pink-800 dark:text-pink-200 hover:bg-pink-300 dark:hover:bg-pink-800/60 border border-pink-300 dark:border-pink-700"
                     : "bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-900/30"
@@ -253,8 +282,16 @@ export function PublicProfilePage() {
               >
                 {isFriend ? (
                   <>
-                    <Check size={14} strokeWidth={2.5} className="group-hover:hidden" />
-                    <X size={14} strokeWidth={2.5} className="hidden group-hover:block" />
+                    <Check
+                      size={14}
+                      strokeWidth={2.5}
+                      className="group-hover:hidden"
+                    />
+                    <X
+                      size={14}
+                      strokeWidth={2.5}
+                      className="hidden group-hover:block"
+                    />
                     <span className="group-hover:hidden">Friends</span>
                     <span className="hidden group-hover:inline">Remove</span>
                   </>
@@ -266,26 +303,30 @@ export function PublicProfilePage() {
                 )}
               </button>
             )}
-            <div className="bg-rose-100 dark:bg-rose-700/40 border border-rose-200 dark:border-rose-500 rounded-xl px-4 py-2.5 text-center min-w-[80px]">
-              <div className="text-xl font-extrabold leading-none">
-                {profile.totalSolved}/{totalProblems}
+            <div className="flex flex-wrap gap-3 items-start">
+              <div className="flex-1 sm:flex-none bg-rose-100 dark:bg-rose-700/40 border border-rose-200 dark:border-rose-500 rounded-xl px-4 py-2.5 text-center min-w-[80px]">
+                <div className="text-xl font-extrabold leading-none">
+                  {profile.totalSolved}/{totalProblems}
+                </div>
+                <div className="text-rose-600 dark:text-rose-300 text-xs mt-1 font-medium">
+                  Solved
+                </div>
               </div>
-              <div className="text-rose-600 dark:text-rose-300 text-xs mt-1 font-medium">
-                Solved
+              <div className="flex-1 sm:flex-none bg-rose-100 dark:bg-rose-700/40 border border-rose-200 dark:border-rose-500 rounded-xl px-4 py-2.5 text-center min-w-[80px]">
+                <div className="text-xl font-extrabold leading-none">
+                  {totalSolvedPct}%
+                </div>
+                <div className="text-rose-600 dark:text-rose-300 text-xs mt-1 font-medium">
+                  Complete
+                </div>
               </div>
-            </div>
-            <div className="bg-rose-100 dark:bg-rose-700/40 border border-rose-200 dark:border-rose-500 rounded-xl px-4 py-2.5 text-center min-w-[80px]">
-              <div className="text-xl font-extrabold leading-none">{totalSolvedPct}%</div>
-              <div className="text-rose-600 dark:text-rose-300 text-xs mt-1 font-medium">
-                Complete
-              </div>
-            </div>
-            <div className="bg-rose-100 dark:bg-rose-700/40 border border-rose-200 dark:border-rose-500 rounded-xl px-4 py-2.5 text-center min-w-[80px]">
-              <div className="text-xl font-extrabold leading-none">
-                {streak > 0 ? `${streak}d` : "—"}
-              </div>
-              <div className="text-rose-600 dark:text-rose-300 text-xs mt-1 font-medium">
-                Streak
+              <div className="flex-1 sm:flex-none bg-rose-100 dark:bg-rose-700/40 border border-rose-200 dark:border-rose-500 rounded-xl px-4 py-2.5 text-center min-w-[80px]">
+                <div className="text-xl font-extrabold leading-none">
+                  {streak > 0 ? `${streak}d` : "—"}
+                </div>
+                <div className="text-rose-600 dark:text-rose-300 text-xs mt-1 font-medium">
+                  Streak
+                </div>
               </div>
             </div>
           </div>
@@ -293,54 +334,54 @@ export function PublicProfilePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 space-y-6">
-          <div className="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-extrabold text-slate-900 dark:text-slate-100">Activity</h2>
-              <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
-                Past year
-              </span>
-            </div>
-            <ActivityHeatmap activityByDate={profile.activityByDate} />
-          </div>
-
-          <div className="bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-sm p-6">
-            <h2 className="font-extrabold text-slate-900 dark:text-slate-100 mb-4">
-              Recently Solved
+        <div className="order-1 lg:col-span-3 lg:col-start-1 lg:row-start-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-sm p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-extrabold text-slate-900 dark:text-slate-100">
+              Activity
             </h2>
-            {profile.recentlySolved.length === 0 ? (
-              <p className="text-slate-400 dark:text-zinc-400 text-sm text-center py-8">
-                No problems solved yet.
-              </p>
-            ) : (
-              <div className="divide-y divide-slate-200 dark:divide-zinc-700">
-                {profile.recentlySolved.map((p) => (
-                  <Link
-                    key={p.slug}
-                    to={`/problems/${p.slug}`}
-                    className="flex items-center gap-3 py-3 -mx-2 px-2 rounded-lg hover:bg-slate-100/50 dark:hover:bg-zinc-700/50 transition-colors"
-                  >
-                    <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center flex-shrink-0">
-                      <Check
-                        className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"
-                        strokeWidth={3}
-                      />
-                    </div>
-                    <span className="flex-1 font-semibold text-slate-900 dark:text-slate-100 text-sm">
-                      {p.title}
-                    </span>
-                    <DifficultyBadge difficulty={p.difficulty} />
-                    <span className="text-xs text-slate-400 dark:text-zinc-500 font-mono shrink-0">
-                      {relativeTime(p.solvedAt)}
-                    </span>
-                  </Link>
-                ))}
-              </div>
-            )}
+            <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
+              Past year
+            </span>
           </div>
+          <ActivityHeatmap activityByDate={profile.activityByDate} />
         </div>
 
-        <div className="lg:col-span-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-sm p-6 self-start">
+        <div className="order-3 lg:order-none lg:col-span-3 lg:col-start-1 lg:row-start-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-sm p-6">
+          <h2 className="font-extrabold text-slate-900 dark:text-slate-100 mb-4">
+            Recently Solved
+          </h2>
+          {profile.recentlySolved.length === 0 ? (
+            <p className="text-slate-400 dark:text-zinc-400 text-sm text-center py-8">
+              No problems solved yet.
+            </p>
+          ) : (
+            <div className="divide-y divide-slate-200 dark:divide-zinc-700">
+              {profile.recentlySolved.map((p) => (
+                <Link
+                  key={p.slug}
+                  to={`/problems/${p.slug}`}
+                  className="flex items-center gap-3 py-3 -mx-2 px-2 rounded-lg hover:bg-slate-100/50 dark:hover:bg-zinc-700/50 transition-colors"
+                >
+                  <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center flex-shrink-0">
+                    <Check
+                      className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400"
+                      strokeWidth={3}
+                    />
+                  </div>
+                  <span className="flex-1 font-semibold text-slate-900 dark:text-slate-100 text-sm">
+                    {p.title}
+                  </span>
+                  <DifficultyBadge difficulty={p.difficulty} />
+                  <span className="text-xs text-slate-400 dark:text-zinc-500 font-mono shrink-0">
+                    {relativeTime(p.solvedAt)}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="order-2 lg:order-none lg:col-span-2 lg:col-start-4 lg:row-start-1 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-2xl shadow-sm p-6 self-start">
           <h2 className="font-extrabold text-slate-900 dark:text-slate-100 mb-5">
             Solved by Difficulty
           </h2>
